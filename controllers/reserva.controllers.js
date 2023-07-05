@@ -105,30 +105,35 @@ ctrl.actualizarReserva = async (req, res) => {
 
 // Eliminar una reserva de forma lógica
 //actualizacion logica del estado de la reserva, de true a false (1 to 0)
+// Eliminar una reserva de forma lógica
 ctrl.eliminarReserva = async (req, res) => {
-  const { id } = req.params;
   try {
+    const { id } = req.params;
+
+    if (!id) {
+      throw {
+        status: 400,
+        message: "No se ha enviado el id de la reserva",
+      };
+    }
+
     const reserva = await Reserva.findByPk(id);
+
     if (!reserva) {
       throw {
         status: 404,
         message: "No se encontró la reserva",
       };
     }
-    if (!reserva.estado) {
-      throw {
-        status: 400,
-        message: "La reserva ya está eliminada",
-      };
-    }
-    reserva.estado = false;
-    await reserva.save();
-    return res.json({ message: "Reserva eliminada correctamente", reserva });
+
+    await reserva.destroy({ estado: false });
+
+    return res.json({ message: "Reserva eliminada correctamente" });
   } catch (error) {
     console.log("Error al eliminar la reserva", error);
-    return res
-      .status(error.status || 500)
-      .json(error.message || "Error interno del servidor");
+    return res.status(error.status || 500).json({
+      message: error.message || "Error al eliminar la reserva",
+    });
   }
 };
 
