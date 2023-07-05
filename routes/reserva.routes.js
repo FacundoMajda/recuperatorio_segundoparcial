@@ -9,9 +9,9 @@ const {
   renderFormEditarReserva,
   obtenerReservas, // Obtener todas
   obtenerReserva, // Obtener un única reserva
-  crearReserva,
+  crearReserva, // Crear una nueva
   actualizarReserva,
-  eliminarReserva,
+  eliminarReserva, // eliminacion logica, 1 to 0
 } = require("../controllers/reserva.controllers");
 
 // ==========================================

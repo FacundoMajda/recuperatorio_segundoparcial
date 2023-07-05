@@ -62,8 +62,7 @@ ctrl.crearReserva = async (req, res) => {
     pasajeros,
     telefono,
     email,
-  } = req.body; // JSON.stringify(reserva);
-
+  } = req.body;
   try {
     // Se crea una nueva instancia de reserva
     const nuevaReserva = new Reserva({
@@ -108,32 +107,25 @@ ctrl.actualizarReserva = async (req, res) => {
 //actualizacion logica del estado de la reserva, de true a false (1 to 0)
 ctrl.eliminarReserva = async (req, res) => {
   const { id } = req.params;
-
   try {
-    const reservaEliminada = await Reserva.update(
-      {
-        estado: false,
-      },
-      {
-        where: {
-          id,
-          estado: true,
-        },
-      }
-    );
-
-    if (!reservaEliminada) {
+    const reserva = await Reserva.findByPk(id);
+    if (!reserva) {
       throw {
-        status: 400,
-        message: "No se pudo eliminar la reserva",
+        status: 404,
+        message: "No se encontró la reserva",
       };
     }
-
-    return res.json({
-      message: "Reserva eliminada correctamente",
-      reservaEliminada,
-    });
+    if (!reserva.estado) {
+      throw {
+        status: 400,
+        message: "La reserva ya está eliminada",
+      };
+    }
+    reserva.estado = false;
+    await reserva.save();
+    return res.json({ message: "Reserva eliminada correctamente", reserva });
   } catch (error) {
+    console.log("Error al eliminar la reserva", error);
     return res
       .status(error.status || 500)
       .json(error.message || "Error interno del servidor");

@@ -4,10 +4,10 @@ const { DataTypes, sequelize } = require("../database");
 const Reserva = sequelize.define(
   "Reserva",
   {
-    // Model attributes are defined here
+    // Modelo de datos, tabla para reservas en un aeropuerto, 13 columnas 'reservadb'
     id: {
       type: DataTypes.INTEGER,
-      primaryKey: true,
+      primaryKey: true, //PK id
       autoIncrement: true,
     },
     codigo: {
