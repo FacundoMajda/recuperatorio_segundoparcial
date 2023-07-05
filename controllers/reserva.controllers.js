@@ -1,13 +1,143 @@
-const ctrlReservas = {};
+const Reserva = require("../models/Reserva");
+const ctrl = {};
+
+ctrl.renderListaReservas = (req, res) => {
+  res.render("listado-reservas");
+};
+
+ctrl.renderFormNuevaReserva = (req, res) => {
+  res.render("nueva-reserva");
+};
+
+ctrl.renderFormEditarReserva = (req, res) => {
+  const { id } = req.params;
+  res.render("editar-reserva", { id });
+};
 
 // ==========================================
-//         Rutas para CRUD de reservas
+//         Rutas para CRUD de reservasx
 // ==========================================
 
-// Obtener todas las reservas
-// Obtener una reserva
+// Obtener todas las reservas de la tabla reservas
+// aqui usamos find all para llamar a todos
+ctrl.obtenerReservas = async (req, res) => {
+  try {
+    const reservas = await Reserva.findAll({
+      where: {
+        estado: true,
+      },
+    });
+
+    return res.json(reservas);
+  } catch (error) {
+    console.log("Error al obtener las reservas", error);
+    return res.status(500).json({
+      message: "Error al obtener las reservas",
+    });
+  }
+};
+
+// Obtener los datos de una reserva a través de la Primary Key (Pk)
+//aqui usamos la pk para hacer referencia a una sola entidad
+ctrl.obtenerReserva = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const reserva = await Reserva.findByPk(id);
+    return res.json(reserva);
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      message: "Error al obtener la reserva",
+    });
+  }
+};
+
 // Crear una reserva
-// Actualizar una reserva
-// Eliminar una reserva de forma lógica
+ctrl.crearReserva = async (req, res) => {
+  const {
+    nombre,
+    apellido,
+    fecha_ida,
+    fecha_vuelta,
+    pasajeros,
+    telefono,
+    email,
+  } = req.body; // JSON.stringify(reserva);
 
-module.exports = ctrlReservas;
+  try {
+    // Se crea una nueva instancia de reserva
+    const nuevaReserva = new Reserva({
+      nombre,
+      apellido,
+      fecha_ida,
+      fecha_vuelta,
+      pasajeros,
+      telefono,
+      email,
+    });
+
+    // Se guarda en la BD
+    await nuevaReserva.save();
+
+    return res.status(201).json({ message: "Reserva creada con éxito" });
+  } catch (error) {
+    console.log("Error al crear la reserva", error);
+    return res.status(500).json({ message: "Error al crear la reserva" });
+  }
+};
+
+// Actualizar una reserva
+ctrl.actualizarReserva = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const reserva = await Reserva.findByPk(id);
+
+    await reserva.update(req.body);
+
+    return res.status(201).json({ message: "Reserva actualizada con éxito" });
+  } catch (error) {
+    console.log("Error al actualizar la reserva", error);
+    return res.status(500).json({
+      message: "Error al actualizar la reserva",
+    });
+  }
+};
+
+// Eliminar una reserva de forma lógica
+//actualizacion logica del estado de la reserva, de true a false (1 to 0)
+ctrl.eliminarReserva = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const reservaEliminada = await Reserva.update(
+      {
+        estado: false,
+      },
+      {
+        where: {
+          id,
+          estado: true,
+        },
+      }
+    );
+
+    if (!reservaEliminada) {
+      throw {
+        status: 400,
+        message: "No se pudo eliminar la reserva",
+      };
+    }
+
+    return res.json({
+      message: "Reserva eliminada correctamente",
+      reservaEliminada,
+    });
+  } catch (error) {
+    return res
+      .status(error.status || 500)
+      .json(error.message || "Error interno del servidor");
+  }
+};
+
+module.exports = ctrl;

@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "description": "",
   "main": "app.js",
-  "scripts": {},
+  "scripts": {
+    "dev": "nodemon app.js"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
@@ -15,6 +17,7 @@
     "helmet": "^7.0.0",
     "morgan": "^1.10.0",
     "mysql": "^2.18.1",
+    "mysql2": "^3.4.5",
     "sequelize": "^6.32.1"
   },
   "devDependencies": {
